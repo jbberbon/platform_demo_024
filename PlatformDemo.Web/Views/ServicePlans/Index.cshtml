@@ -1,0 +1,78 @@
+@model PlatformDemo.Web.Models.Common.BasePaginatedResponse<ServicePlanViewModel>
+@{
+    ViewData["Title"] = "Service Plans";
+}
+
+<h2>Service Plans</h2>
+
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Date of Purchase</th>
+        <th>Timesheets</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var plan in Model.Results)
+    {
+        <tr style="cursor:pointer;" onclick="openPlanModal('@plan.Id')">
+            <td>@plan.Name</td>
+            <td>@plan.Description</td>
+            <td>@plan.DateOfPurchase.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+            <td>@plan.TimesheetCount</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div class="d-flex justify-content-between">
+    <div>
+        Page @Model.Page of @Math.Ceiling((double)Model.Total / Model.PageSize)
+    </div>
+
+    <div>
+        @if (Model.Page > 1)
+        {
+            <a asp-action="Index"
+               asp-route-page="@(Model.Page - 1)"
+               asp-route-pageSize="@Model.PageSize">
+                Previous
+            </a>
+        }
+
+        @if (Model.Page * Model.PageSize < Model.Total)
+        {
+            <a asp-action="Index"
+               asp-route-page="@(Model.Page + 1)"
+               asp-route-pageSize="@Model.PageSize">
+                Next
+            </a>
+        }
+    </div>
+</div>
+
+@Html.Partial("ServicePlans/_ServicePlanModal")
+
+<script>
+    function openPlanModal(planId) {
+        const modalBody = document.getElementById('planModalBody');
+
+        modalBody.innerHTML = '<p>Loading...</p>';
+
+        const planModal = new bootstrap.Modal(document.getElementById('planModal'));
+        planModal.show();
+
+        fetch(`/ServicePlans/Details/${planId}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Network response was not OK');
+                return res.text();
+            })
+            .then(html => modalBody.innerHTML = html)
+            .catch(err => {
+                modalBody.innerHTML = '<p class="text-danger">Failed to load details.</p>';
+                console.error(err);
+            });
+    }
+</script>

@@ -1,0 +1,20 @@
+@model PlatformDemo.Web.Models.ServicePlanViewModel
+
+<p><strong>Name:</strong> @Model.Name</p>
+<p><strong>Description:</strong> @Model.Description</p>
+<p><strong>Date of Purchase:</strong> @Model.DateOfPurchase.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+
+<h6>Timesheets:</h6>
+@if (Model.Timesheets != null && Model.Timesheets.Any())
+{
+    <ul>
+        @foreach (var t in Model.Timesheets)
+        {
+            <li>@t.Start.ToString("F")</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No timesheets yet.</p>
+}
